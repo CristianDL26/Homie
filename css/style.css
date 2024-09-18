@@ -3685,3 +3685,68 @@ textarea::placeholder {
 .star-rating label:hover~label {
     color: #E63946;
 }
+
+.order-action-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+#sortButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+#sortButton svg {
+    transition: transform 0.3s ease;
+}
+
+#sortButton.asc svg {
+    transform: rotate(180deg); 
+}
+
+#sortButton.desc svg {
+    transform: rotate(0deg);
+}
+
+.grey {
+    background-color: #7e7e7e;
+}
+
+.grey:hover {
+    background-color: #7e7e7e;
+}
+
+.orders-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+    margin: 20px 0;
+}
+
+.order {
+    position: relative;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.delete-order {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #575757; /* Colore della "X" */
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.delete-order:hover {
+    color: #B22222; /* Cambia colore al passaggio del mouse */
+}

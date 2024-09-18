@@ -1,28 +1,15 @@
-[
-    {
-        "requestId": "6658bc02d7333",
-        "userId": 18,
-        "userName": "Alessia Angel\u00e8",
-        "userAddress": "Via Tomasino D'Amico, La Massimina-Casal Lumbroso, RM, Italia",
-        "userLng": 12.3561178,
-        "userLat": 41.873068,
-        "professionalName": "Marcello Verdi",
-        "professionalId": "123marcello",
-        "status": "canceled",
-        "details": "",
-        "timestamp": "2024-05-30T19:48:50+02:00"
-    },
-    {
-        "requestId": "66d485959d605",
-        "userId": 1,
-        "userName": "Lorenzo Buzi",
-        "userAddress": "via santa lucia filippini 7",
-        "userLng": 14.2852404,
-        "userLat": 40.8453488,
-        "professionalName": "Gigi Buzi",
+{
+    "1": {
+        "requestId": "66ea271d3fe54",
+        "userId": 6,
+        "userName": "Cristian De lauretis",
+        "userAddress": "Via del ponte 31, Roma, RM, Italia",
+        "userLng": 12.5894656,
+        "userLat": 41.8807808,
+        "professionalName": "Michele Barese",
         "professionalId": "1423241",
-        "status": "completed",
-        "details": "asd",
-        "timestamp": "2024-09-01T15:17:41+00:00"
+        "status": "pending",
+        "details": "Pulizia pavimento abitazione.",
+        "timestamp": "2024-09-18T03:04:29+02:00"
     }
-]
+}

@@ -1,9 +1,8 @@
 <?php
-session_start();
-include 'db_connection.php'; 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}include 'db_connection.php'; 
 
 $username = ucfirst($_SESSION['name']) . " " . ucfirst($_SESSION['cognome']);
 $image = strtolower(str_replace(' ', '', $_SESSION['name']) . "-" . str_replace(' ', '', $_SESSION['cognome']) . "-" . $_SESSION['piva'] . ".jpeg");

@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function (event) {
     if (!dropdownContent.contains(event.target) && !userButton.contains(event.target)) {
       dropdownContent.classList.remove('show');
-      userButton.classList.remove('active'); // Rimuovi la classe 'active'
+      userButton.classList.remove('active'); 
     }
   });
 });
@@ -75,24 +75,3 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
-
-
-
-
-/* document.querySelectorAll('.increment-button').forEach(button => {
-  button.addEventListener('click', function() {
-      const input = this.parentNode.previousElementSibling;  
-      input.value = parseInt(input.value) + 1; 
-  });
-});
-
-document.querySelectorAll('.decrement-button').forEach(button => {
-  button.addEventListener('click', function() {
-      const input = this.parentNode.previousElementSibling; 
-      if (parseInt(input.value) > 0) {
-          input.value = parseInt(input.value) - 1;
-      }
-  });
-});
- */

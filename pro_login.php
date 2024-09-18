@@ -1,7 +1,7 @@
 <?php
-// Start the session
-session_start();
-include 'db_connection.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}include 'db_connection.php';
 
 
 $email = $conn->real_escape_string($_POST['email']);
@@ -9,7 +9,6 @@ $password = $conn->real_escape_string($_POST['password']);
 $password_md5 = md5($password);
 
 
-// Query the database to check if the credentials are valid
 $query = "SELECT * FROM homie.pro_data WHERE email = ? AND password = ?";
 $stmt = $conn->prepare($query);
 
@@ -40,7 +39,6 @@ else {
     $_SESSION['p_chiamata'] = $row['prezzo_chiamata'];
     $_SESSION['is_active'] = $row['is_active'];
     $_SESSION['rating'] = $row['rating'];
-    //setcookie('user_id', $userid, time() + (30 * 24 * 60 * 60), '/');
     header('Location:home_pro.php');
     exit();
 }

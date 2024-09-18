@@ -1,9 +1,9 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
-session_start();
+if (session_status() == PHP_SESSION_NONE && php_sapi_name() != 'cli') {
+    session_start();
+}
+
 
 function downloadProfessionals()
 {
@@ -54,8 +54,8 @@ function downloadProfessionals()
 
 function getCachedCoords($address)
 {
-    $cacheFile = 'cache/' . md5($address) . '.json'; // Assicurati che la cartella cache sia scrivibile
-    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) { // Cache valida per 1 ora
+    $cacheFile = 'cache/' . md5($address) . '.json'; 
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) { 
         return json_decode(file_get_contents($cacheFile), true);
     }
 
@@ -77,7 +77,7 @@ function getLatLong($address)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Imposta un timeout di 30 secondi
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     $response = curl_exec($ch);
     curl_close($ch);
 
@@ -582,7 +582,7 @@ function getProfessionalPosition()
 
     if (file_exists($filePath)) {
         $locations = json_decode(file_get_contents($filePath), true);
-        $professionalId = $data['professionalId']; // Make sure this ID is being sent from the client
+        $professionalId = $data['professionalId'];
 
         if (isset($locations[$professionalId])) {
             echo json_encode([
@@ -600,10 +600,24 @@ function getProfessionalPosition()
 
 function getUserRequests()
 {
-
+    if (!isset($_SESSION['userid'])) {
+        echo json_encode(['success' => false, 'error' => 'User ID not set in session']);
+        return;
+    }
     $userId = $_SESSION['userid'];
 
-    $requestData = json_decode(file_get_contents('requests.json'), true);
+    $file = 'requests.json';
+    if (!file_exists($file)) {
+        echo json_encode(['success' => false, 'error' => 'File not found']);
+        return;
+    }
+
+    $requestData = json_decode(file_get_contents($file), true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(['success' => false, 'error' => 'Error decoding JSON: ' . json_last_error_msg()]);
+        return;
+    }
+    
     $userRequests = array_filter($requestData, function ($request) use ($userId) {
         return $request['userId'] === $userId;
     });
@@ -694,6 +708,25 @@ function submitRating()
     $conn->close();
 }
 
+function deletePastRequest(){
+    include 'db_connection.php';
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $orderId = $data['orderId'];
+
+    $query = "DELETE FROM homie.orders WHERE order_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $orderId);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $stmt->error]);
+    }
+    $stmt->close();
+}
+
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
@@ -760,6 +793,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
         case 'submitRating':
             submitRating();
             break;
+
+        case 'deletePastRequest':
+            deletePastRequest();
+            break;
     }
 }
 
@@ -798,48 +835,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
     }
 }
 
-/* function favorite_handler(){
-    session_start();
-include 'db_connection.php';
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-$response = ['success' => false];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $user_id = $_SESSION['userid'];
-    $item_id = $conn->real_escape_string($input['item_id']);
-    $checked = filter_var($input['checked'], FILTER_VALIDATE_BOOLEAN);
-
-    if ($checked) {
-        // Add to favorites
-        $query = "INSERT INTO homie.favorites (userid, item_id) VALUES (?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("ii", $user_id, $item_id);
-        if ($stmt->execute()) {
-            $response['success'] = true;
-            $response['message'] = "Aggiunto ai preferiti.";
-        } else {
-            $response['message'] = 'Errore durante l\'aggiunta ai preferiti: ' . $conn->error;
-        }
-    } else {
-        // Remove from favorites
-        $query = "DELETE FROM homie.favorites WHERE userid = ? AND item_id = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("ii", $user_id, $item_id);
-        if ($stmt->execute()) {
-            $response['success'] = true;
-            $response['message'] = "Rimosso dai preferiti.";
-        } else {
-            $response['message'] = 'Errore durante la rimozione dai preferiti: ' . $conn->error;
-        }
-    }
-
-    $stmt->close();
-    $conn->close();
-}
-
-echo json_encode($response);
-
-} */

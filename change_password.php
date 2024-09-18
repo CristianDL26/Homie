@@ -1,6 +1,7 @@
 <?php
-session_start();
-include 'db_connection.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}include 'db_connection.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 $response = ['success' => false];

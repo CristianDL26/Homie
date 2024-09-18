@@ -84,3 +84,11 @@ input[type="text"] {
 button {
     margin-right: 5px; 
 }
+
+.main-tables {
+    display: flex;
+}
+
+.main-tables .table-section:last-child {
+    padding-left: 20px; 
+}

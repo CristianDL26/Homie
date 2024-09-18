@@ -1,9 +1,8 @@
 <?php
 
-session_start();
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include 'db_connection.php';
 
 $nome = $conn->real_escape_string($_POST['nome']);
@@ -61,9 +60,9 @@ if ($_FILES["photo"]["size"] > 5000000) {
 }
 
 
-if ($imageFileType != "jpeg") {
+if ($imageFileType != "jpeg" && $imageFileType != "jpg" && $imageFileType != "png") {
     $uploadOk = 0;
-    header('Location:register_page_pro.php?error=Only JPG, JPEG, PNG & GIF files are allowed.');
+    header('Location:register_page_pro.php?error=Only JPG, JPEG, PNG files are allowed. ' . $imageFileType);
     exit();
 }
 
@@ -79,7 +78,6 @@ if ($uploadOk == 0) {
                 VALUES ('$nome', '$cognome', '$email', '$indirizzo', md5('$password'), '$professione', '$piva', '$p_orario', '$p_chiamata', '$rating', '$target_file')";
 
         if ($conn->query($sql) === TRUE) {
-            // Set session variables
             $_SESSION['piva'] = $piva;
             $_SESSION['userid'] = $piva;
             $_SESSION['email'] = $email;

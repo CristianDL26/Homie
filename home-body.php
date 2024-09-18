@@ -46,19 +46,35 @@
         <div class="professionals-container">
             <div class="professionals-container-title">
                 <h1>Professionisti</h1>
-                <div class="favorites-toggle">
-                    <button class="favorites-toggle-button">
-                        <label class="favorites-toggle-container">
-                            <input type="checkbox" id="favoriteCheckbox" data-item-id="123">
-                            <svg id="Layer_1" version="1.0" viewBox="0 0 24 24" xml:space="preserve"
-                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                <path
-                                    d="M16.4,4C14.6,4,13,4.9,12,6.3C11,4.9,9.4,4,7.6,4C4.5,4,2,6.5,2,9.6C2,14,12,22,12,22s10-8,10-12.4C22,6.5,19.5,4,16.4,4z">
-                                </path>
-                            </svg>
-                        </label>
+                <div class="order-action-buttons">
+                    <div class="favorites-toggle">
+                        <button class="favorites-toggle-button">
+                            <label class="favorites-toggle-container">
+                                <input type="checkbox" id="favoriteCheckbox" data-item-id="123">
+                                <svg id="Layer_1" version="1.0" viewBox="0 0 24 24" xml:space="preserve"
+                                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <path
+                                        d="M16.4,4C14.6,4,13,4.9,12,6.3C11,4.9,9.4,4,7.6,4C4.5,4,2,6.5,2,9.6C2,14,12,22,12,22s10-8,10-12.4C22,6.5,19.5,4,16.4,4z">
+                                    </path>
+                                </svg>
+                            </label>
+                        </button>
+                    </div>
+                    <button id="sortButton" data-sort="asc">
+                        <svg width="30px" height="30px" viewBox="0 0 16 16" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path d="M0 11H3L3 0H5L5 11H8V12L4 16L0 12V11Z" fill="#666"></path>
+                                <path d="M16 10H10V8H16V10Z" fill="#666"></path>
+                                <path d="M10 6H14V4H10V6Z" fill="#666"></path>
+                                <path d="M12 2H10V0H12V2Z" fill="#666"></path>
+                            </g>
+                        </svg>
                     </button>
                 </div>
+
 
             </div>
             <ul>

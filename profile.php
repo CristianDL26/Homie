@@ -1,6 +1,7 @@
 <?php
-// Start the session
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include 'db_connection.php';
 if (isset($_SESSION['professione'])) {
     header('Location:pro_profile.php');
@@ -16,7 +17,9 @@ if (isset($_SESSION['professione'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
     <link rel="icon" href="img/icons/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="img/icons/favicon.ico" type="image/x-icon">
     <script src="script/autocomplete.js" defer></script>
@@ -29,35 +32,31 @@ if (isset($_SESSION['professione'])) {
     <script src="script/change_password.js" defer></script>
     <script src="script/address.js" defer></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8NKq8Y7ZWcdnprjHHsH153OrNT3HyVmk&callback=initMap"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8NKq8Y7ZWcdnprjHHsH153OrNT3HyVmk&callback=initMap"></script>
 
 
     <script>
         function showContent(sectionId, btn) {
-            //reset password form and error messages
             document.getElementById('changePasswordForm').reset();
             document.getElementById('password_error').innerHTML = '';
             document.getElementById('passwordresponseMessage').innerHTML = '';
 
 
-            // Hide all content
             var contents = document.getElementsByClassName('page');
             for (var i = 0; i < contents.length; i++) {
                 contents[i].classList.remove('active');
             }
-            // Show the clicked content
             document.getElementById(sectionId).classList.add('active');
 
-            // Remove active-btn class from all buttons
             var buttons = document.querySelectorAll('.navigation-bar button');
-            buttons.forEach(function(button) {
+            buttons.forEach(function (button) {
                 button.classList.remove('active-btn');
             });
 
-            // Add active-btn class to the clicked button
             btn.classList.add('active-btn');
         }
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const section = urlParams.get('section');
 
@@ -69,13 +68,35 @@ if (isset($_SESSION['professione'])) {
                     showContent('profile-info', document.querySelector('.navigation-bar button[onclick="showContent(\'profile-info\',this)"]'));
                 }
 
-                // Remove the query parameter from the URL
                 const newUrl = window.location.origin + window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);
             } else {
                 showContent('profile-info', document.querySelector('.navigation-bar button[onclick="showContent(\'profile-info\',this)"]'));
             }
         });
+
+        function deletePastRequest(orderId) {
+            if (confirm('Sei sicuro di voler eliminare questo ordine?')) {
+                fetch('utilities.php?action=deletePastRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId: orderId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('row-order-' + orderId).remove();
+                        } else {
+                            alert('Errore durante l\'eliminazione dell\'ordine');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore:', error);
+                    });
+            }
+        }
     </script>
 
 </head>
@@ -120,7 +141,8 @@ if (isset($_SESSION['professione'])) {
                             </div>
                             <div class="input-container">
                                 <label for="cognome">Cognome:</label>
-                                <input type="text" id="cognome" name="cognome" value="<?php echo  $cognome  ?>" disabled>
+                                <input type="text" id="cognome" name="cognome" value="<?php echo $cognome ?>"
+                                    disabled>
                             </div>
                         </div>
                         <div class="t-rows-container">
@@ -130,7 +152,8 @@ if (isset($_SESSION['professione'])) {
                             </div>
                             <div class="input-container">
                                 <label for="indirizzo">Indirizzo:</label>
-                                <input type="text" id="indirizzo" name="indirizzo" value="<?php echo $indirizzo ?>" disabled>
+                                <input type="text" id="indirizzo" name="indirizzo" value="<?php echo $indirizzo ?>"
+                                    disabled>
                             </div>
                         </div>
                         <div class="button-container">
@@ -141,34 +164,38 @@ if (isset($_SESSION['professione'])) {
                     </form>
                     <p id="responseMessage"></p>
                 </div>
-                <div id="ordini" class="page">
+                <div id="ordini" class="page orders-container">
                     <h1>I Miei Ordini</h1>
                     <?php
                     $query = "SELECT distinct * FROM homie.orders JOIN homie.pro_data WHERE user_id = '$userId' AND pro_id = piva ORDER BY date DESC";
                     $result = $conn->query($query);
 
-                    // Check if there are any orders
                     if ($result->num_rows > 0) {
-                        // Loop through the orders and create the HTML elements
                         while ($row = $result->fetch_assoc()) {
                             $pro_id = htmlspecialchars($row['pro_id']);
                             $pro_name = htmlspecialchars($row['nome']);
                             $orderDate = htmlspecialchars($row['date']);
                             $details = htmlspecialchars($row['details']);
-                            if (htmlspecialchars(
-                                $row['accepted']
-                            ) == 0) {
+                            $orderId = htmlspecialchars($row['order_id']);
+
+                            if (
+                                htmlspecialchars(
+                                    $row['accepted']
+                                ) == 0
+                            ) {
                                 $completed = "Non accettato";
-                            } else if (htmlspecialchars(
-                                $row['completed']
-                            ) == 0) {
+                            } else if (
+                                htmlspecialchars(
+                                    $row['completed']
+                                ) == 0
+                            ) {
                                 $completed = "Accettato In attesa";
                             } else {
                                 $completed = "Completato";
                             }
 
-                            // Create the HTML elements for each order
-                            echo '<div class="order">';
+                            echo '<div id="row-order-' . $orderId . '" class="order">';
+                            echo '<button class="delete-order" onclick="deletePastRequest(\'' . $orderId . '\')">X</button>';
                             echo '<p>Professionista: ' . $pro_name . '</p>';
                             echo '<p>Data: ' . $orderDate . '</p>';
                             echo '<p>Dettagli: ' . $details . '</p>';
@@ -176,7 +203,6 @@ if (isset($_SESSION['professione'])) {
                             echo '</div>';
                         }
                     } else {
-                        // Display a message if there are no orders
                         echo '<p>No orders found.</p>';
                     }
 
@@ -201,7 +227,8 @@ if (isset($_SESSION['professione'])) {
                         </div>
                         <div class="input-container">
                             <label for="confirm_password">Conferma Password:</label>
-                            <input type="password" id="confirm_password" name="confirm_password" required onkeyup="checkPassword()">
+                            <input type="password" id="confirm_password" name="confirm_password" required
+                                onkeyup="checkPassword()">
                         </div>
                         <p id="password_error" class="profile-error-message"></p>
                         <p id="passwordresponseMessage" class="profile-error-message"></p>
@@ -215,17 +242,6 @@ if (isset($_SESSION['professione'])) {
         </div>
     </div>
 
-
-    <!--     <script>
-        function openPage(pageName) {
-            var i, pages;
-            pages = document.getElementsByClassName("page");
-            for (i = 0; i < pages.length; i++) {
-                pages[i].classList.remove("active");
-            }
-            document.getElementById(pageName).classList.add("active");
-        }
-    </script> -->
     <div class="mp-footer">
         <?php include 'footer.php'; ?>
     </div>

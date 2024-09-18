@@ -1,7 +1,7 @@
 <?php
-// Start the session
-session_start();
-include 'db_connection.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}include 'db_connection.php';
 if (!isset($_SESSION['professione'])) {
     header('Location:home.php');
     exit();

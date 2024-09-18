@@ -1,6 +1,7 @@
 <?php
-session_start();
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: login_page.php");
     exit();
@@ -158,7 +159,6 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             cells.forEach(function (cell) {
                 var originalText = cell.innerText;
 
-                // Seleziona dropdown per 'professione'
                 if (cell.querySelector('select')) {
                     var select = cell.querySelector('select');
                     select.disabled = false;
@@ -278,41 +278,42 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     </div>
 
     <div class="dashboard-container">
-        <div class="table-section">
-            <h2>Utenti Registrati</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Cognome</th>
-                        <th>Email</th>
-                        <th>Indirizzo</th>
-                        <th>Admin</th>
-                        <th>Azioni</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    require 'db_connection.php';
+        <div class="main-tables">
+            <div class="table-section">
+                <h2>Utenti Registrati</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Cognome</th>
+                            <th>Email</th>
+                            <th>Indirizzo</th>
+                            <th>Admin</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        require 'db_connection.php';
 
-                    $query = "SELECT userid, nome, cognome, email, indirizzo FROM user_data";
-                    $result = $conn->query($query);
+                        $query = "SELECT userid, nome, cognome, email, indirizzo FROM user_data";
+                        $result = $conn->query($query);
 
-                    if ($result === false) {
-                        echo "Errore nella query: " . $conn->error;
-                    } else {
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                $admin_query = "SELECT * FROM admin WHERE id = ?";
-                                $admin_stmt = $conn->prepare($admin_query);
-                                $admin_stmt->bind_param("i", $row['userid']);
-                                $admin_stmt->execute();
-                                $admin_result = $admin_stmt->get_result();
+                        if ($result === false) {
+                            echo "Errore nella query: " . $conn->error;
+                        } else {
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $admin_query = "SELECT * FROM admin WHERE id = ?";
+                                    $admin_stmt = $conn->prepare($admin_query);
+                                    $admin_stmt->bind_param("i", $row['userid']);
+                                    $admin_stmt->execute();
+                                    $admin_result = $admin_stmt->get_result();
 
-                                $isAdminChecked = ($admin_result->num_rows > 0) ? 'checked' : '';
+                                    $isAdminChecked = ($admin_result->num_rows > 0) ? 'checked' : '';
 
-                                echo "<tr id='row-{$row['userid']}'>
+                                    echo "<tr id='row-{$row['userid']}'>
                                         <td>{$row['userid']}</td>
                                         <td class='editable' data-field='nome' data-id='{$row['userid']}'>{$row['nome']}</td>
                                         <td class='editable' data-field='cognome' data-id='{$row['userid']}'>{$row['cognome']}</td>
@@ -327,19 +328,71 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         </td>
                                     </tr>";
 
-                                $admin_stmt->close();
+                                    $admin_stmt->close();
+                                }
+                            } else {
+                                echo "<tr><td colspan='6'>Nessun utente trovato</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='6'>Nessun utente trovato</td></tr>";
                         }
-                    }
-                    $conn->close();
-                    ?>
-                </tbody>
-            </table>
+                        $conn->close();
+                        ?>
+                    </tbody>
+                </table>
 
+            </div>
+            <div class="table-section">
+                <h2>Admin</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Cognome</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        require 'db_connection.php';
+
+                        $query = "SELECT userid, nome, cognome, email FROM user_data";
+                        $result = $conn->query($query);
+
+                        if ($result === false) {
+                            echo "Errore nella query: " . $conn->error;
+                        } else {
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $admin_query = "SELECT * FROM admin WHERE id = ?";
+                                    $admin_stmt = $conn->prepare($admin_query);
+                                    $admin_stmt->bind_param("i", $row['userid']);
+                                    $admin_stmt->execute();
+                                    $admin_result = $admin_stmt->get_result();
+
+                                    $isAdmin = ($admin_result->num_rows > 0) ? 'checked' : '';
+
+                                    if ($admin_result->num_rows > 0) {
+                                        echo "<tr id='row-{$row['userid']}'>
+                                        <td>{$row['userid']}</td>
+                                        <td class='editable' data-field='nome' data-id='{$row['userid']}'>{$row['nome']}</td>
+                                        <td class='editable' data-field='cognome' data-id='{$row['userid']}'>{$row['cognome']}</td>
+                                        <td class='editable' data-field='email' data-id='{$row['userid']}'>{$row['email']}</td>
+                                    </tr>";
+                                    }
+
+                                    $admin_stmt->close();
+                                }
+                            } else {
+                                echo "<tr><td colspan='6'>Nessun utente trovato</td></tr>";
+                            }
+                        }
+                        $conn->close();
+                        ?>
+                    </tbody>
+                </table>
+
+            </div>
         </div>
-
         <div class="table-section">
             <h2>Professionisti Registrati</h2>
             <table>
@@ -362,7 +415,17 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     <?php
                     require 'db_connection.php';
 
-                    $query = "SELECT piva, nome, cognome, email, indirizzo, professione, prezzo_orario, prezzo_chiamata, rating, is_active FROM pro_data";
+                    $query = "SELECT 
+                                p.piva, p.nome, p.cognome, p.email, p.professione, p.indirizzo, p.prezzo_orario, p.prezzo_chiamata, p.is_active, 
+                                COALESCE(ROUND(AVG(o.rating), 1), 0) AS rating  
+                            FROM 
+                                homie.pro_data p
+                            LEFT JOIN 
+                                homie.orders o ON p.piva = o.pro_id AND o.rating IS NOT NULL
+                            GROUP BY 
+                                p.piva, p.nome, p.cognome, p.email, p.professione, p.indirizzo, p.prezzo_orario, p.prezzo_chiamata, p.is_active
+                            ";
+                            
                     $result = $conn->query($query);
 
                     if ($result === false) {

@@ -1,6 +1,7 @@
 <?php
-session_start();
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -35,7 +36,6 @@ if ($conn->query($sql) === TRUE) {
     header('Location: home.php');
     exit();
 } else {
-    // Stampa un messaggio di errore più dettagliato
     $error_message = "Errore nella creazione dell'account: " . $conn->error;
     header('Location: register_page.php?error=' . urlencode($error_message));
     exit();

@@ -133,7 +133,7 @@
         function updateCarousel() {
             const items = document.querySelectorAll('.carousel-item');
             const totalItems = items.length;
-            const visibleItems = 1; // Only 1 item visible on screens smaller than 425px
+            const visibleItems = 1; 
 
             if (index < 0) {
                 index = totalItems - visibleItems;
@@ -141,7 +141,7 @@
                 index = 0;
             }
 
-            const translateX = -index * 100; // Translate based on 1 visible item
+            const translateX = -index * 100; 
             carousel.style.transform = `translateX(${translateX}%)`;
         }
 
@@ -171,16 +171,13 @@
             const diffX = startX - currentX;
 
             if (diffX > 50) {
-                // Swipe left
                 index++;
             } else if (diffX < -50) {
-                // Swipe right
                 index--;
             }
 
             updateCarousel();
 
-            // Reset values
             startX = null;
             currentX = null;
         }
@@ -197,7 +194,6 @@
             }
         });
 
-        // Initialize carousel on load if the screen is small enough
         if (window.innerWidth <= 425) {
             updateCarousel();
         }

@@ -1,7 +1,8 @@
 <?php
 include 'db_connection.php';
-session_start();
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userid = $_POST['userid'];
     $is_admin = $_POST['is_admin'];

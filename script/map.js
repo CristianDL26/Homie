@@ -391,8 +391,8 @@ document.addEventListener('DOMContentLoaded', function () {
           };
           console.log('User location:', userLocation);
 
-          populateProfessionalsList(professionals); // Popola la lista dei professionisti
-          initMap(userLocation); // Inizializza la mappa con la posizione dell'utente
+          populateProfessionalsList(professionals);
+          initMap(userLocation);
         }, function () {
           handleLocationError(true);
           populateProfessionalsList(professionals);
@@ -439,6 +439,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+document.getElementById('sortButton').addEventListener('click', function () {
+  const sortOrder = this.getAttribute('data-sort');
+
+  const professionalItems = Array.from(document.querySelectorAll('.professionals-container ul li'));
+
+  professionalItems.sort((a, b) => {
+    const ratingA = parseFloat(a.querySelector('.worker-rating .rating').textContent) || 0;
+    const ratingB = parseFloat(b.querySelector('.worker-rating .rating').textContent) || 0;
+
+    return sortOrder === 'asc' ? ratingA - ratingB : ratingB - ratingA;
+  });
+
+  const professionalsList = document.querySelector('.professionals-container ul');
+  professionalsList.innerHTML = '';
+  professionalItems.forEach(item => professionalsList.appendChild(item));
+
+  if (sortOrder === 'asc') {
+    professionals.sort((a, b) => parseFloat(a.rating) - parseFloat(b.rating));
+    this.setAttribute('data-sort', 'desc');
+    this.classList.remove('asc');
+    this.classList.add('desc');
+  } else {
+    professionals.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+    this.setAttribute('data-sort', 'asc');
+    this.classList.remove('desc');
+    this.classList.add('asc');
+  }
+});
+
 
 
 document.querySelectorAll('.category-button').forEach(button => {
@@ -463,12 +492,6 @@ document.querySelectorAll('.category-button').forEach(button => {
   });
 });
 
-/* document.addEventListener("DOMContentLoaded", function () {
-  // Gestione dell'inizializzazione della mappa
-  document.addEventListener('MapInitialized', function () {
-    attachEventToRequestButtons();
-  });
-}); */
 
 function attachEventToRequestButtons() {
   const professionistiButtons = document.querySelectorAll('.worker-menu .call-worker-button');
@@ -492,11 +515,9 @@ function showProfessionalDetails(button) {
   const posizione = workerEntry.querySelector('.worker-position span').textContent;
   const img = workerEntry.dataset.img;
 
-  // Nascondi la mappa
   const map = document.getElementById('map');
   map.classList.add('hidden');
 
-  // Mostra i dettagli del professionista
   const detailsContainer = document.getElementById('professional-details');
   document.getElementById('professional-image').src = img;
   document.getElementById('professional-name').textContent = nome;
@@ -612,6 +633,13 @@ function startPolling(requestId) {
             updateClientOnCompletion(requestId);
           } else if (data.requestDetails.status === 'canceled') {
             clearInterval(pollingInterval);
+
+            if (!document.querySelector('.request-accepted-container').classList.contains('hidden')) {
+              stopProfessionalTracking();
+              document.querySelector('.request-accepted-container').classList.add('hidden');
+              handleFinishedRequest()
+            }
+
             clearCanceledRequest(requestId);
           }
         } else if (!data.success && data.error === 'Request not found') {
@@ -622,7 +650,7 @@ function startPolling(requestId) {
   };
 
   pollRequest();
-  pollingInterval = setInterval(pollRequest, 5000);
+  pollingInterval = setInterval(pollRequest, 1000);
 }
 
 function clearCanceledRequest() {
@@ -723,7 +751,7 @@ function updateClientOnCompletion(requestId) {
       .catch(error => {
         console.error('Errore durante l\'invio della valutazione:', error);
       });
-    
+
   });
 
 

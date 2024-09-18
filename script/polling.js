@@ -18,7 +18,7 @@ function pollRequests() {
 }
 
 function checkForAcceptedRequests() {
-    fetch('utilities.php?action=getRequests') 
+    fetch('utilities.php?action=getRequests')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -125,8 +125,8 @@ function handleAcceptedRequestPro(requestId) {
             locationInterval = setInterval(() => sendCurrentLocation(requestDetails), 5000);
             updateOngoingRequestUI(requestDetails);
 
-            clearInterval(timeUpdateInterval); 
-            timeUpdateInterval = setInterval(() => updateTimeContainer(requestDetails.timestamp), 1000); 
+            clearInterval(timeUpdateInterval);
+            timeUpdateInterval = setInterval(() => updateTimeContainer(requestDetails.timestamp), 1000);
         })
         .catch(error => {
             console.error('Error fetching request details:', error);
@@ -182,6 +182,7 @@ function updateOngoingRequestUI(details) {
                     </div>
                 </div>
             </div>
+            <button class="default-button grey" onclick="cancelProRequest('${details.requestId}')">X Annulla la Richiesta</button>
             <button class="default-button" onclick="endRequest('${details.requestId}')">Completa la Richiesta</button>
         </div>
     `;
@@ -195,17 +196,17 @@ function rejectRequest(requestId) {
         },
         body: JSON.stringify({ requestId })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.querySelector(`#request-${requestId}`).remove();
-        } else {
-            alert('Errore durante il rifiuto della richiesta: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Errore:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`#request-${requestId}`).remove();
+            } else {
+                alert('Errore durante il rifiuto della richiesta: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+        });
 }
 
 function rejectAll() {
@@ -226,6 +227,30 @@ function rejectAll() {
         .catch(error => console.error('Error:', error));
 }
 
+function cancelProRequest(requestId) {
+    fetch('utilities.php?action=cancelRequest', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ requestId })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.ongoing-request-container').classList.add('hidden');
+                document.querySelector('.map.professionals-container').classList.remove('hidden');
+                clearInterval(locationInterval);
+                pollRequests();
+                pollingIntervalPro = setInterval(pollRequests, 5000);
+            } else {
+                alert('Errore durante l\'annulamento della richiesta: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+        });
+}
 
 function endRequest(requestId) {
     fetch('utilities.php?action=endRequest', {
@@ -235,21 +260,21 @@ function endRequest(requestId) {
         },
         body: JSON.stringify({ requestId })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.querySelector('.ongoing-request-container').classList.add('hidden');
-            document.querySelector('.map.professionals-container').classList.remove('hidden');
-            clearInterval(locationInterval);
-            pollRequests();
-            pollingIntervalPro = setInterval(pollRequests, 5000);
-        } else {
-            alert('Errore durante la conclusione della richiesta: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Errore:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.ongoing-request-container').classList.add('hidden');
+                document.querySelector('.map.professionals-container').classList.remove('hidden');
+                clearInterval(locationInterval);
+                pollRequests();
+                pollingIntervalPro = setInterval(pollRequests, 5000);
+            } else {
+                alert('Errore durante la conclusione della richiesta: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+        });
 }
 
 function sendCurrentLocation(details) {
@@ -268,11 +293,11 @@ function sendCurrentLocation(details) {
             },
             body: JSON.stringify(coords)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Location updated:', data);
-        })
-        .catch(error => console.error('Error updating location:', error));
+            .then(response => response.json())
+            .then(data => {
+                console.log('Location updated:', data);
+            })
+            .catch(error => console.error('Error updating location:', error));
     });
 }
 
@@ -318,9 +343,9 @@ function timeSince(date) {
     return Math.floor(seconds) + " secondi fa";
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     checkForAcceptedRequests();
     pollRequests();
-    pollingIntervalPro = setInterval(pollRequests, 5000);
-    
+    pollingIntervalPro = setInterval(pollRequests, 1000);
+
 });

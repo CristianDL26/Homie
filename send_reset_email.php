@@ -3,10 +3,12 @@ require 'vendor/autoload.php';
             
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-            
+header('Location: login_page.php');
+
 $mail = new PHPMailer(true);
-session_start();
-ini_set('display_errors', 1);
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 include 'db_connection.php';
@@ -15,6 +17,7 @@ $response = ['success' => false];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $conn->real_escape_string($_POST['email']);
+    ;
     $sql = "SELECT userid FROM homie.user_data WHERE email='$email'";
     $result = $conn->query($sql);
 
